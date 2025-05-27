@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Sex List</title>
+  <link href="https://fonts.googleapis.com/css2?family=Parisienne&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="sfondoRosaRossa.jpg">
+  
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Sex List">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <link rel="stylesheet" href="sexList.css" >
+</head>
+<body>
+    <div id="roomInit" class="room-init-box">
+      <div class="room-init-icon">
+        <i class="fa-solid fa-heart"></i>
+      </div>
+      <h2>Benvenuto in Sex List!</h2>
+      <p>Inserisci il codice stanza del partner<br>oppure lascia vuoto per crearne uno nuovo.</p>
+      <input type="text" id="partnerCode" placeholder="Codice stanza..." autocomplete="off" />
+      <button onclick="initRoom()">Inizia o Accedi</button>
+  </div>
+
+  <div id="loader">
+    <video autoplay muted playsinline id="loaderVideo">
+      <source src="Video senza titolo - Realizzato con Clipchamp.mp4" type="video/mp4" />
+      Il tuo browser non supporta il video.
+    </video>
+  </div>
+  
+<div class="container" style="display: none;">
+  <div class="header">
+    <h2>Sexy Point</h2>
+    <button class="menu" onclick="toggleMenu()">
+      <i class="fa-solid fa-bars" style="color: #ffffff; border: #ffffff00;"></i>
+    </button>
+  </div>
+
+  <div id="container3" class="container3">
+    <div id="inner-content">
+      <section class="sezione">
+        <h2>Luoghi da provare</h2>
+        <div id="taskCardContainer" class="scroll-container"></div>
+      </section>
+
+      <section class="sezione">
+        <h2>Prossimi appuntamenti</h2>
+        <div class="card">
+          <div class="card-title">🥂 Cena romantica</div>
+          <div class="card-meta">🗓️ 24 Maggio</div>
+        </div>
+      </section>
+
+      <section class="sezione">
+        <h2>Idea del giorno</h2>
+        <div class="daily-tip">💡 Provate la doccia insieme domani mattina 🌧️💋</div>
+      </section>
+    </div>
+  </div>
+
+  <div id="localita" class="section hidden">
+    <div id="cityInputContainer">
+      <input id="cityInput" type="text" placeholder="Inserisci una città dove lo hai fatto" autocomplete="off" style="color: #ffffff;" />
+      <div id="cityList"></div>
+    </div>
+    <div id="globeViz"></div>
+    <iframe id="mapFrame" width="100%" height="300" style="border:0;" loading="lazy"></iframe>
+
+    <script src="https://unpkg.com/three@0.150.1/build/three.min.js"></script>
+    <script src="https://unpkg.com/three-globe"></script>
+    <script src="https://unpkg.com/globe.gl"></script>
+  </div>
+
+  <div class="slide-menu" id="slideMenu">
+    <div class="menu-item" onclick="toggleContainer('posti')">Posti</div>
+    <div class="menu-item" onclick="toggleContainer('localita')">Località</div>
+    <div class="menu-item" onclick="toggleContainer('calendar')">Calendario</div>
+  </div>
+
+  <div id="posti" class="section hidden">
+    <div class="todo-input">
+      <input type="text" id="newTask" placeholder="Dove lo vuoi fare?..." />
+      <button onclick="addTask()">Aggiungi</button>
+    </div>
+    <div id="taskList"></div>
+  </div>
+
+  <div id="calendar" class="section hidden" >
+    <header>
+      <div class="calendar-header">
+        <button id="prev"><img src="3499021b-2255-4c03-88fd-cf5ae1e8eee1.png"></button>
+        <h2 id="monthYear"></h2>
+        <button id="next"><img src="3499021b-2255-4c03-88fd-cf5ae1e8eee0.png"></button>
+      </div>
+    </header>
+    <div class="day-names">
+      <div>Dom</div><div>Lun</div><div>Mar</div><div>Mer</div><div>Gio</div><div>Ven</div><div>Sab</div>
+    </div>
+    <div class="days" id="days"></div>
+
+    <div id="dayDetail" class="day-detail hidden">
+
+    </div>
+
+    </div>
+  </div>
+</div>
+
+
+  </div>
+
+  <!-- Firebase App (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+  <!-- Firebase Firestore (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+<script>
+  // Config Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyDY0aeJQiMUrJ3h_gdtvCCypQVd_PIn650",
+    authDomain: "lista-di-coppia.firebaseapp.com",
+    projectId: "lista-di-coppia",
+    storageBucket: "lista-di-coppia.firebasestorage.app",
+    messagingSenderId: "588955586283",
+    appId: "1:588955586283:web:d40e9adc9845ff2f0338ae",
+    measurementId: "G-KS8SM2Q0E9"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  let roomId;
+
+  document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("newTask").disabled = true;
+    document.querySelector("#posti button").disabled = true;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const existingRoomId = urlParams.get("room");
+    if (existingRoomId) {
+      roomId = existingRoomId;
+      window.roomDataRef = firebase.firestore().collection("rooms").doc(roomId);
+      startApp();
+    } else {
+      document.getElementById("roomInit").style.display = "block";
+      document.querySelector(".container").style.display = "none";
+    }
+  });
+
+  function startApp() {
+    document.getElementById("roomInit").style.display = "none";
+    document.querySelector(".container").style.display = "block";
+    document.getElementById("newTask").disabled = false;
+    document.querySelector("#posti button").disabled = false;
+    loadTasks();
+    loadCities();
+    loadCalendar();
+    loadDailyIdea();
+    renderHorizontalTaskCards();
+  }
+
+  function initRoom() {
+    const codeInput = document.getElementById('partnerCode').value.trim();
+    if (codeInput) {
+      roomId = codeInput;
+      window.history.replaceState(null, "", `?room=${roomId}`);
+    } else {
+      roomId = Math.random().toString(36).substring(2, 10);
+      alert("Codice stanza generato: " + roomId);
+      window.history.replaceState(null, "", `?room=${roomId}`);
+    }
+    window.roomDataRef = firebase.firestore().collection("rooms").doc(roomId);
+    startApp();
+  }
+</script>
+
+  <!-- Il tuo JS con la logica della app -->
+  <script src="sexList.js"></script>
+</body>
+</html>

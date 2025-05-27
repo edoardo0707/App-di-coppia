@@ -1,0 +1,904 @@
+html, body {
+  overflow: hidden;
+  height: 100%;
+  max-height: none;
+}
+body {
+    font-family: Arial, sans-serif;
+    background-color: black;
+    display: flex;
+    justify-content: center;
+    background-image: url(san-valentino_34629-604.avif);
+    background-size: cover; 
+    background-repeat: no-repeat;  
+    background-position: center center;                
+    font-family: 'Parisienne', cursive;
+    font-size: 1.5em; 
+    overscroll-behavior: none;
+    touch-action: none;
+    height: 100%;
+    overflow: hidden; /* Blocco totale dello scroll */
+  }
+input, button {
+  font-size: 16px; /* impedisce zoom automatico su iOS */
+}
+  
+.container {
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.527);
+  max-height: none;
+  width: 100vw;            /* quasi tutta la larghezza dello schermo */
+  max-width: none;        /* rimuove il limite implicito */
+  margin: 0 auto;         /* centra il contenitore */
+  border-radius: 10px;
+  padding: 20px;
+  box-sizing: border-box;
+}
+  .header {
+    display: flex;
+    justify-content: space-between; /* oppure 'flex-end' se vuoi il bottone a destra */
+    align-items: center; /* allinea verticalmente al centro */
+    margin-bottom: 20px;
+    margin-left: 1%;
+  }
+  
+  .header h2 {
+    margin: 0; /* rimuove margine per allineamento perfetto */
+    color: #ccc;
+  }
+  
+  .menu {
+    background-color: transparent;
+    color: #ccc;
+    font-size: 1.5em;
+    border: none;
+    cursor: pointer;
+  }
+  
+  
+  h2 {
+    margin-left: 3%;
+    margin-bottom: 20px;
+    color: #ccc;
+  }
+  
+  .todo-input {
+    display: flex;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.527);
+  }
+  
+  .todo-input input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #cccccc17;
+    border-radius: 5px 0 0 5px;
+    outline: none;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.527);
+    font-family: 'Parisienne', cursive;
+    font-weight: bold;
+
+}
+  .todo-input ::placeholder{
+    color: #000000;
+  }
+
+  .todo-input button {
+    padding: 8px 12px;
+    background: #ff0000;
+    color: rgb(0, 0, 0);
+    border: none;
+    border-radius: 0 5px 5px 0;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.527);
+    font-family: 'Parisienne', cursive;
+    font-weight: bold;
+  }
+  
+  label {
+    position: relative;  /* <<< aggiunto per posizionare il bottone delete */
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    background: #f7f7f71c;
+    padding: 8px;
+    border-radius: 5px;
+    color: #ccc;
+    user-select: none;
+  }
+  
+  input[type="checkbox"] {
+    margin-right: 10px;
+  }
+  
+  .done {
+    text-decoration: line-through;
+    color: gray;
+  }
+  
+  #taskList {
+    max-height: 450px; 
+    overflow-y: auto;  
+    padding-right: 5px;
+  }
+  
+  #taskList::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  #taskList::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  #taskList::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    transition: background-color 0.3s;
+  }
+  
+  #taskList::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.4);
+  }
+  
+  #taskList {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+  }
+  
+  @media (max-width: 480px) {
+    body {
+      padding-top: 10px;
+      padding: 0;
+      font-size: 1.2em;
+      background-image: url(sfondoCuoreTramonto.jpg);
+    }
+  
+    .container {
+      width: 100%;
+      max-width: none;
+      padding: 15px;
+      box-sizing: border-box;
+    }
+  
+    .todo-input {
+      flex-direction: column;
+    }
+  
+    .todo-input input {
+      border-radius: 5px;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+  
+    .todo-input button {
+      border-radius: 5px;
+      width: 100%;
+    }
+  
+    #taskList {
+      max-height: 380px;
+    }
+  }
+  
+  .task-wrapper {
+    position: relative;  /* serve per far funzionare absolute dei figli */
+    margin-bottom: 10px; /* se vuoi distanziare le righe */
+  }
+  
+  .delete-btn {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 80px;
+    background-image: url(sfondoRosaRossa.jpg);
+    background-size: cover; 
+    background-repeat: no-repeat;  
+    background-position: center center; 
+    color: white;
+    border: none;
+    display: none;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+    z-index: 10;
+    border-radius: 10px;
+    transition: color 0.3s ease, transform 0.3s ease;
+  }
+  
+  .delete-btn.show {
+    display: block;
+  }
+  
+  .delete-btn:hover {
+    color: #ff1a1a;
+    transform: scale(1.1);
+  }
+  
+  .slide-menu {
+    position: absolute;
+    top: calc(94px);
+    right: 0;
+    width: 30%;
+    height: 20%;
+    background-color: rgba(0, 0, 0, 0.753);
+    border-radius: 10px 0 0 10px;
+    box-shadow: -2px 2px 8px rgba(0,0,0,0.5);
+    color: #ccccccd0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 10px;
+    gap: 15%;
+    transform: translateX(100%);
+    transition: transform 0.4s ease-in-out;
+    z-index: 100;
+    font-weight: bold;
+  }
+  
+  /* Mostra il menu */
+  .slide-menu.show {
+    transform: translateX(0);
+  }
+  #loader {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: black;
+  }
+  
+  #loaderVideo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+
+
+#localita {
+  position: relative;
+  width: 100%;
+  height: 90%;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+#globeViz {
+  position: absolute;
+  top: -15%;
+  left: -7%;
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  z-index: 1;
+}
+#globeViz canvas {
+  display: block;
+  margin: 0 auto;
+  object-fit: contain;
+}
+
+#cityInputContainer {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 95%;
+  max-width: 500px;
+  padding: 10px;
+  background: transparent;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  z-index: 2;
+}
+
+#cityInput {
+  width: 90%;
+  padding: 10px;
+  font-size: 1em;
+  border-radius: 8px;
+  border: 1px solid #cccccc00;
+  font-family: 'Parisienne', cursive;
+  font-weight: bold;
+  background-color: #ffffff33;
+  color: white;
+}
+#cityInput ::placeholder{
+  color: white;
+}
+#cityInput::-webkit-input-placeholder {
+  color: white;
+}
+
+#cityInput::-moz-placeholder {
+  color: white;
+}
+
+#cityInput:-ms-input-placeholder {
+  color: white;
+}
+
+#cityInput::-ms-input-placeholder {
+  color: white;
+}
+
+#cityInput::placeholder {
+  color: white;
+}
+
+#cityList {
+  width: 100%;
+  max-height: 40px;
+  overflow-x: auto;
+  overflow-y: hidden; /* Impedisce lo scroll verticale */
+  white-space: nowrap;
+  display: flex;
+  gap: 10px;
+  padding-bottom: 5px;
+  scrollbar-width: none; /* Per Firefox */
+  -ms-overflow-style: auto; /* Per Internet Explorer */
+}
+#cityList::-webkit-scrollbar {
+  height: 6px; /* Altezza della scrollbar su Chrome/Safari */
+}
+
+#cityList::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 0, 0, 0.6); 
+  border-radius: 10px;
+}
+#cityList {
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+#cityList span {
+  scroll-snap-align: start;
+}
+
+#cityList span {
+  background: #000000b6;
+  color: #ffffff;
+  border-radius: 20px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.3s;
+  flex-shrink: 0;
+  font-family: 'Parisienne', cursive;
+  font-weight: bold;
+}
+
+#cityList span:hover {
+  background: #cc0000;
+}
+
+/* Responsive: mobile friendly */
+@media (max-width: 600px) {
+  #cityInput {
+    width: 90%;
+    font-size: 16px;
+  }
+  #cityList {
+    max-height: 40px;
+    gap: 6px;
+  }
+  #cityList span {
+    font-size: 12px;
+    padding: 5px 8px;
+  }
+}
+.section {
+  display: block;
+  transition: all 0.3s ease;
+  width: 100%;
+  height: auto;
+  max-height: 600px;
+  overflow-y: auto;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+
+.hidden {
+  display: none !important;
+}
+
+.container3 {
+  position: relative;
+  width: 96%;
+  max-width: 1000px;
+  margin: 0 auto;
+  max-height: 90%;
+  padding: 2rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  overflow-x: hidden;
+  background-color: rgba(0, 0, 0, 0.2);
+  flex-direction: column;
+  display: flex;
+  box-sizing: border-box;
+}
+#inner-content {
+  margin-top: -15%;
+}
+
+.sezione {
+  margin-bottom: 1rem;
+}
+
+.sezione h2 {
+  color: gold;
+  font-size: 1.4rem;
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.card {
+  background-color: #1a1a1a62;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 4%;
+  margin-bottom: 0.5rem;
+}
+
+.card-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #ff0000;
+  margin-bottom: 0.5rem;
+}
+
+.card-meta {
+  font-size: 0.9rem;
+  color: #ccc;
+}
+
+.card-note {
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+  color: #aaa;
+  font-style: italic;
+}
+
+.daily-tip {
+  background-color: #1a1a1a62;
+  border-left: 40% solid gold;
+  padding: 1rem;
+  border-radius: 10px;
+  color: #f9f9f9;
+  font-size:1rem;
+}
+
+    .calendar {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: none;
+      height: 90%;
+    }
+
+    .calendar header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .calendar header h2 {
+      margin: 0;
+      font-size: 1.5rem;
+    }
+    .calendar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      margin-top: 10%;
+    }
+
+    .calendar-header h2 {
+      position: relative;
+      margin: 0;
+      font-size: 1.4rem;
+    }
+    #prev , #next{
+      background-color: rgba(0, 0, 0, 0);
+      border: solid rgba(0, 0, 0, 0);
+      border-radius: 20px;
+      color: white;
+      align-items: center;
+      justify-content: center;
+      align-content: center;
+    }
+    #prev img, #next img{
+      width: 40%;
+      height: 40%;
+    }
+    .calendar button {
+      background: none;
+      border: none;
+      font-size: 1.8rem;
+      cursor: pointer;
+      padding: 5px;
+    }
+    .day-names{
+      margin-top: 20%;
+    }
+    .day-names, .days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+    }
+
+    .day-names div {
+      text-align: center;
+      font-weight: bold;
+      color: #777;
+      font-size: 1rem;
+    }
+
+    .days div {
+      aspect-ratio: 1 / 1.5; /* Mantiene quadrato */
+      font-size: 1.1rem;
+      border-radius: 12px;
+      cursor: pointer;
+      background: #ffffff25;
+      transition: background 0.2s;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      padding: 0; /* ⛔ Rimuove padding che deforma il quadrato */
+      box-sizing: border-box;
+    }
+
+      .day {
+        position: relative; /* serve per posizionare emoji dentro il div */
+      }
+
+      .icon-emoji {
+        position: absolute;
+        bottom: -5px;
+        right: -8px;
+        font-size: 16px;
+        pointer-events: none; /* non interferisce con click sul giorno */
+        user-select: none;
+      }
+
+    .days div.today {
+      background-color: #000000;
+      color: white;
+      font-weight: bold;
+    }
+
+    .days div:hover {
+      background-color: #e0e0e0;
+    }
+
+    .empty {
+      background: transparent;
+      pointer-events: none;
+    }
+#calendar {
+  position: relative;
+}
+#dayDetail {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 16px;
+  overflow: hidden; /* Non scrollabile globalmente */
+}
+
+/* Bottone chiudi sempre visibile sopra */
+#dayDetail button#closeDetail {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  border: none;
+  background: #ffffff4d;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1.5rem;
+  line-height: 1;
+  padding: 6px 10px;
+  transition: background 0.2s;
+  z-index: 20;
+}
+#dayDetail button#closeDetail:hover {
+  background: #bbb;
+}
+
+/* --- Container circolare immagine --- */
+.image-upload {
+  display: flex;
+  justify-content: center;
+  margin: 0 auto 20px auto;
+  width: 120px;
+  height: 120px;
+  min-width: 120px;
+  min-height: 120px;
+}
+
+.image-circle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px dashed #ccc;
+  transition: border-color 0.3s;
+}
+.image-circle {
+  border: 2px dashed #ccc;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  transition: background 0.3s ease;
+  cursor: pointer;
+}
+
+.image-circle:hover {
+  border-color: #aaa;
+}
+
+.image-circle img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+/* --- Container descrizione e promemoria --- */
+.input-group {
+  width: 100%;
+  margin: 10px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: -2%;
+}
+
+.input-group label {
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.input-group textarea,
+.input-group input {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  box-sizing: border-box;
+  resize: vertical;
+  min-height: 60px;
+  max-height: 150px;
+}
+
+/* --- Container icone con checkbox --- */
+.icon-checkboxes {
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  gap: 12px;
+  padding: 10px 0;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+  max-width: 100%;
+  color:rgb(255, 255, 255);
+}
+
+.icon-checkboxes::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+.icon-checkboxes label {
+  flex: 0 0 auto;
+  font-size: 1.8rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  background: #f1f1f13d;
+  padding: 6px 12px;
+  border-radius: 12px;
+  white-space: nowrap;
+  color: #ffffff;
+  height: 4vh;
+}
+
+/* --- Responsività totale --- */
+@media (max-width: 768px) {
+  /* Riduce dimensione immagine e padding */
+  .image-upload {
+    width: 100px;
+    height: 100px;
+  }
+
+  .image-circle {
+    font-size: 1.5rem;
+  }
+
+  /* Input più piccoli */
+  .input-group textarea,
+  .input-group input {
+    font-size: 0.9rem;
+    min-height: 50px;
+  }
+
+  /* Icone più piccole e meno padding */
+  .icon-checkboxes label {
+    font-size: 1.4rem;
+    padding: 2px 10px;
+  }
+}
+
+@media (max-width: 400px) {
+  #dayDetail {
+    padding: 15px 10px;
+    gap: 12px;
+  }
+
+  /* Immagine ancora più piccola */
+  .image-upload {
+    width: 80px;
+    height: 80px;
+  }
+
+  .image-circle {
+    font-size: 1.2rem;
+  }
+
+  /* Label e input più piccoli */
+  .input-group label {
+    font-size: 0.9rem;
+  }
+
+  .input-group textarea,
+  .input-group input {
+    font-size: 0.85rem;
+    min-height: 45px;
+  }
+
+  /* Icone ancora più compatte */
+  .icon-checkboxes label {
+    font-size: 1.2rem;
+    padding: 0px 8px;
+  }
+}
+.scroll-container {
+  display: flex;
+  overflow-x: auto;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.scroll-container::-webkit-scrollbar {
+  display: none;
+}
+
+.scroll-container .card {
+  flex: 0 0 auto;
+  min-width: 180px;
+  max-width: 250px;
+  width: 90%;
+  background-color: #1a1a1a62;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 1rem;
+  scroll-snap-align: start;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+}
+
+.scroll-container .card-title {
+  font-size: 1.5rem;
+  color: #ff0000;
+  font-weight: bold;
+  
+}
+.room-init-box {
+  max-width: 350px;
+  margin: 60px auto 0 auto;
+  background: rgba(255,255,255,0.95);
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.13);
+  padding: 32px 28px 28px 28px;
+  text-align: center;
+  position: relative;
+  animation: fadeIn 0.7s;
+  max-height: 70%;
+}
+
+.room-init-icon {
+  font-size: 2.8rem;
+  color: #e63946;
+  margin-bottom: 12px;
+  animation: pulse 1.2s infinite alternate;
+}
+
+.room-init-box h2 {
+  font-family: 'Parisienne', cursive;
+  color: #c2185b;
+  margin-bottom: 8px;
+  font-size: 2rem;
+}
+
+.room-init-box p {
+  color: #444;
+  margin-bottom: 18px;
+  font-size: 1.05rem;
+}
+
+.room-init-box input[type="text"] {
+  width: 90%;
+  padding: 10px 12px;
+  border: 1.5px solid #e63946;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  margin-bottom: 16px;
+  outline: none;
+  transition: border 0.2s;
+}
+
+.room-init-box input[type="text"]:focus {
+  border: 2px solid #c2185b;
+}
+
+.room-init-box button {
+  background: linear-gradient(90deg, #e63946 60%, #c2185b 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 28px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(230,57,70,0.08);
+  transition: background 0.2s, transform 0.1s;
+}
+
+.room-init-box button:hover {
+  background: linear-gradient(90deg, #c2185b 60%, #e63946 100%);
+  transform: translateY(-2px) scale(1.03);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(30px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+@keyframes pulse {
+  from { transform: scale(1);}
+  to { transform: scale(1.13);}
+}
+
