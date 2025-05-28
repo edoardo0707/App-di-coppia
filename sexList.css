@@ -830,34 +830,45 @@ input, button {
 .room-init-box {
   max-width: 350px;
   margin: 60px auto 0 auto;
-  background: rgba(255,255,255,0.95);
+  background: rgba(0, 0, 0, 0.95);
   border-radius: 18px;
   box-shadow: 0 4px 24px rgba(0,0,0,0.13);
   padding: 32px 28px 28px 28px;
   text-align: center;
   position: relative;
   animation: fadeIn 0.7s;
-  max-height: 70%;
+  max-height: 70%;           /* Limita l'altezza massima */
+  overflow-y: auto;           /* Attiva lo scroll verticale se serve */
+  overscroll-behavior: contain; /* Previene scroll della pagina quando scrolli il box */
+  scrollbar-width: thin;      /* Scrollbar sottile su Firefox */
+}
+
+/* Scrollbar più elegante su Chrome/Safari */
+.room-init-box::-webkit-scrollbar {
+  width: 8px;
+}
+.room-init-box::-webkit-scrollbar-thumb {
+  background: #e63946;
+  border-radius: 8px;
 }
 
 .room-init-icon {
   font-size: 2.8rem;
-  color: #e63946;
-  margin-bottom: 12px;
+  color: #c2185b;
   animation: pulse 1.2s infinite alternate;
 }
 
 .room-init-box h2 {
   font-family: 'Parisienne', cursive;
   color: #c2185b;
-  margin-bottom: 8px;
   font-size: 2rem;
 }
 
 .room-init-box p {
-  color: #444;
+  color: #ffffff;
   margin-bottom: 18px;
-  font-size: 1.05rem;
+  font-size: 1.2rem;
+    margin-top: 15%;
 }
 
 .room-init-box input[type="text"] {
@@ -866,9 +877,13 @@ input, button {
   border: 1.5px solid #e63946;
   border-radius: 8px;
   font-size: 1.1rem;
-  margin-bottom: 16px;
+  margin-top: 8%;
   outline: none;
   transition: border 0.2s;
+}
+
+.room-init-box input::placeholder {
+  color: #000000;
 }
 
 .room-init-box input[type="text"]:focus {
@@ -886,6 +901,7 @@ input, button {
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(230,57,70,0.08);
   transition: background 0.2s, transform 0.1s;
+  margin-top: 15%;
 }
 
 .room-init-box button:hover {
@@ -902,3 +918,34 @@ input, button {
   to { transform: scale(1.13);}
 }
 
+#recentRoomsContainer {
+  margin-top: 18px;
+  text-align: left;
+}
+.recent-rooms-title {
+  font-size: 1.5rem;
+  color: #c2185b;
+  margin-top: 15%;
+  margin-left: 4px;
+}
+.recent-rooms-scroll {
+  display: flex;
+  overflow-x: auto;
+  gap: 10px;
+  padding-bottom: 4px;
+}
+.recent-room-code {
+  background: #f8bbd0;
+  color: #c2185b;
+  border-radius: 8px;
+  padding: 7px 16px;
+  font-size: 1.05rem;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+.recent-room-code:hover {
+  background: #c2185b;
+  color: #fff;
+}
