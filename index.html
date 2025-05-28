@@ -6,7 +6,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Parisienne&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
-  <link rel="manifest" href="./manifest.json">
+  <link rel="manifest" href="/manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="apple-touch-icon" href="sfondoRosaRossa.jpg">
@@ -25,9 +25,13 @@
       </div>
       <h2>Benvenuto in Sex List!</h2>
       <p>Inserisci il codice stanza del partner<br>oppure lascia vuoto per crearne uno nuovo.</p>
-      <input type="text" id="partnerCode" placeholder="Codice stanza..." autocomplete="off" />
+      <input type="text" id="partnerCode" placeholder="Codice coppia..." style="color: black;" autocomplete="off" />
       <button onclick="initRoom()">Inizia o Accedi</button>
-  </div>
+      <div id="recentRoomsContainer">
+        <div class="recent-rooms-title">Stanze usate di recente:</div>
+        <div id="recentRooms" class="recent-rooms-scroll"></div>
+      </div>
+    </div>
 
   <div id="loader">
     <video autoplay muted playsinline id="loaderVideo">
@@ -150,7 +154,32 @@
       document.getElementById("roomInit").style.display = "block";
       document.querySelector(".container").style.display = "none";
     }
+      renderRecentRooms();
   });
+
+    function saveRoomToHistory(roomCode) {
+      let codes = JSON.parse(localStorage.getItem('recentRooms') || '[]');
+      codes = codes.filter(c => c !== roomCode); // Remove duplicates
+      codes.unshift(roomCode); // Add to start
+      if (codes.length > 10) codes = codes.slice(0, 10); // Max 10 codes
+      localStorage.setItem('recentRooms', JSON.stringify(codes));
+    }
+
+    function renderRecentRooms() {
+      const codes = JSON.parse(localStorage.getItem('recentRooms') || '[]');
+      const container = document.getElementById('recentRooms');
+      if (!container) return;
+      container.innerHTML = '';
+      codes.forEach(code => {
+        const btn = document.createElement('button');
+        btn.className = 'recent-room-code';
+        btn.textContent = code;
+        btn.onclick = () => {
+          document.getElementById('partnerCode').value = code;
+        };
+        container.appendChild(btn);
+      });
+    }
 
   function startApp() {
     document.getElementById("roomInit").style.display = "none";
@@ -166,15 +195,20 @@
 
   function initRoom() {
     const codeInput = document.getElementById('partnerCode').value.trim();
+    let codeToUse;
     if (codeInput) {
+      codeToUse = codeInput;
       roomId = codeInput;
       window.history.replaceState(null, "", `?room=${roomId}`);
     } else {
-      roomId = Math.random().toString(36).substring(2, 10);
+      codeToUse = Math.random().toString(36).substring(2, 10);
+      roomId = codeToUse;
       alert("Codice stanza generato: " + roomId);
       window.history.replaceState(null, "", `?room=${roomId}`);
     }
     window.roomDataRef = firebase.firestore().collection("rooms").doc(roomId);
+    saveRoomToHistory(codeToUse);
+    renderRecentRooms();
     startApp();
   }
 </script>
