@@ -7,8 +7,12 @@ const URLS_TO_CACHE = [
   '/index.html',
   '/styles.css',
   '/scripts.js',
-  '/images/logo.png', // Aggiungi qui altre immagini o risorse statiche
-  '/favicon.ico',
+  '/3499021b-2255-4c03-88fd-cf5ae1e8eee0.png', // Aggiungi qui altre immagini o risorse statiche
+  '/3499021b-2255-4c03-88fd-cf5ae1e8eee1.png',
+  '/san-valentino_34629-604.avif',
+  '/sfondoCuoreTramonto.jpg',
+  '/sfondoRosaRossa.jpg',
+  '/world.topo.bathy.200412.3x5400x2700.jpg'
 ];
 
 // Durante l'installazione, pre-carichiamo le risorse necessarie per l'app
