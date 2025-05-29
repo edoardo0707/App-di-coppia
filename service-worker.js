@@ -12,7 +12,6 @@ const URLS_TO_CACHE = [
   './sfondoCuoreTramonto.jpg',
   './sfondoRosaRossa.jpg',
   './world.topo.bathy.200412.3x5400x2700.jpg'
-  './Video senza titolo - Realizzato con Clipchamp.mp4'
 ];
 
 // Durante l'installazione, pre-carichiamo le risorse necessarie per l'app
