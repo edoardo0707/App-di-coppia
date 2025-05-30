@@ -182,6 +182,7 @@ function initChat() {
     container.scrollTop = container.scrollHeight;
   });
 }
+window.initChat = initChat;
 
 const taskListDiv = document.getElementById('taskList');
 const input = document.getElementById('newTask');
