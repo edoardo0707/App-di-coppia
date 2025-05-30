@@ -2,11 +2,8 @@ html, body {
   overflow: hidden;
   height: 100%;
   max-height: none;
-}
-html, body {
   margin: 0;
   padding: 0;
-  height: 100%;
 }
 
 html, body {
