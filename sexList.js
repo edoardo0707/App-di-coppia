@@ -10,6 +10,178 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+document.getElementById("send-button").addEventListener("mouseup", function() {
+      this.blur();
+    });
+    document.getElementById("send-button").addEventListener("mousedown", function() {
+      this.blur();
+    });
+
+function aggiornaIdeaDelGiorno() {
+    const idee = [
+      "💡 Provate la doccia insieme domani mattina 🌧️💋",
+      "💡 Scrivetevi una lettera d'amore ✉️❤️",
+      "💡 Cucinate qualcosa di nuovo insieme 🍝👩‍🍳",
+      "💡 Guardate il tramonto mano nella mano 🌅🤝",
+      "💡 Spegnete i telefoni per un'ora solo per voi 📵💑",
+      "💡 Fate una passeggiata senza meta 🚶‍♂️🚶‍♀️",
+      "💡 Raccontatevi un segreto mai detto 🤫💞"
+    ];
+
+    // Usa il giorno corrente per selezionare un'idea
+    const oggi = new Date();
+    const indice = oggi.getDate() % idee.length;
+
+    // Aggiorna il contenuto della div
+    const dailyTip = document.querySelector('.daily-tip');
+    if (dailyTip) {
+      dailyTip.textContent = idee[indice];
+    }
+  }
+  document.addEventListener('DOMContentLoaded', aggiornaIdeaDelGiorno);
+
+  document.addEventListener("DOMContentLoaded", function() {
+  const profileImageCircle = document.getElementById("profileImageCircle");
+  const profileImageInput = document.getElementById("profileImageInput");
+
+  // Carica immagine da localStorage se presente
+  const savedImg = localStorage.getItem("profileImage");
+  if (savedImg && profileImageCircle) {
+    profileImageCircle.style.backgroundImage = `url(${savedImg})`;
+  }
+
+  if (profileImageCircle && profileImageInput) {
+    profileImageCircle.onclick = () => profileImageInput.click();
+    profileImageInput.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const imgSrc = ev.target.result;
+        profileImageCircle.style.backgroundImage = `url(${imgSrc})`;
+        localStorage.setItem("profileImage", imgSrc);
+      };
+      reader.readAsDataURL(file);
+    };
+  }
+  const usernameInput = document.getElementById("username-input");
+  const usernameError = document.getElementById("username-error");
+  let partnerName = "";
+
+  // UID e roomId
+  let myUid = localStorage.getItem("myUid");
+  if (!myUid) {
+    myUid = Math.random().toString(36).substring(2, 12);
+    localStorage.setItem("myUid", myUid);
+  }
+  // Recupera roomId dalla URL o variabile globale
+  let roomId = window.roomId || (new URLSearchParams(window.location.search)).get("room");
+
+  // Aggiorna nome su Firestore quando cambia
+  usernameInput.addEventListener("input", function() {
+    const myName = this.value.trim();
+    saveMyNameToFirestore(roomId, myUid, myName);
+    // Mostra errore se uguale al partner
+    if (partnerName && myName.toLowerCase() === partnerName.toLowerCase()) {
+      usernameError.textContent = "Il nome non può essere uguale a quello del partner!";
+      usernameError.style.display = "block";
+    } else {
+      usernameError.textContent = "";
+      usernameError.style.display = "none";
+    }
+    localStorage.setItem("chatName", myName);
+  });
+
+  // Ascolta il nome del partner
+  listenToPartnerName(roomId, myUid, function(newPartnerName) {
+    partnerName = newPartnerName;
+    // Forza il controllo errore
+    usernameInput.dispatchEvent(new Event('input'));
+  });
+
+  // All'avvio, se c'è già un nome salvato, lo mostra
+  let myName = localStorage.getItem("chatName") || "";
+  if (usernameInput) usernameInput.value = myName;
+});
+
+
+async function saveMyNameToFirestore(roomId, myUid, myName) {
+  const roomRef = firebase.firestore().collection("rooms").doc(roomId);
+  await roomRef.set({
+    userNames: { [myUid]: myName }
+  }, { merge: true });
+}
+
+// Ascolta i nomi degli utenti nella stanza
+function listenToPartnerName(roomId, myUid, onPartnerName) {
+  const roomRef = firebase.firestore().collection("rooms").doc(roomId);
+  return roomRef.onSnapshot(doc => {
+    const data = doc.data();
+    if (data && data.userNames) {
+      // Prendi il nome partner (diverso dal mio UID)
+      const partnerUid = Object.keys(data.userNames).find(uid => uid !== myUid);
+      const partnerName = partnerUid ? data.userNames[partnerUid] : "";
+      onPartnerName(partnerName || "");
+    }
+  });
+}
+  
+  
+
+function initChat() {
+  const messagesRef = window.roomDataRef.collection("messages");
+  let myName = localStorage.getItem("chatName") || "";
+  const usernameInput = document.getElementById("username-input");
+  if (usernameInput) {
+    usernameInput.value = myName;
+    usernameInput.addEventListener("input", function() {
+      myName = this.value.trim() || "Anonimo";
+      localStorage.setItem("chatName", myName);
+    });
+  }
+  if (!myName) {
+    myName = "Anonimo";
+  }
+
+  document.getElementById("send-button").addEventListener("click", async () => {
+    const input = document.getElementById("message-input");
+    const text = input.value.trim();
+    if (!text) return;
+    await messagesRef.add({
+      name: myName,
+      text: text,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    input.value = "";
+  });
+
+  messagesRef.orderBy("timestamp").onSnapshot(snapshot => {
+    const container = document.getElementById("chat-container");
+    container.innerHTML = "";
+    snapshot.forEach(doc => {
+      const msg = doc.data();
+      const messageWrapper = document.createElement("div");
+      messageWrapper.classList.add("message");
+      messageWrapper.classList.add(msg.name === myName ? "me" : "other");
+      const textDiv = document.createElement("div");
+      textDiv.classList.add("text");
+      textDiv.textContent = msg.text;
+      const timeDiv = document.createElement("div");
+      timeDiv.classList.add("timestamp");
+      if (msg.timestamp?.toDate) {
+        const date = msg.timestamp.toDate();
+        const hours = date.getHours().toString().padStart(2, "0");
+        const minutes = date.getMinutes().toString().padStart(2, "0");
+        timeDiv.textContent = `${hours}:${minutes}`;
+      }
+      messageWrapper.appendChild(textDiv);
+      messageWrapper.appendChild(timeDiv);
+      container.appendChild(messageWrapper);
+    });
+    container.scrollTop = container.scrollHeight;
+  });
+}
+
 const taskListDiv = document.getElementById('taskList');
 const input = document.getElementById('newTask');
 let tasksRef;
@@ -537,4 +709,3 @@ window.toggleContainer = toggleContainer;
 window.loadCities = loadCities;
 window.loadCalendar = () => renderMonthWithData(currentDate);
 window.loadDailyIdea = loadDailyIdea;
-
