@@ -106,6 +106,7 @@ function aggiornaIdeaDelGiorno() {
 
 
 async function saveMyNameToFirestore(roomId, myUid, myName) {
+  if (!roomId) return; // <-- aggiungi questo controllo
   const roomRef = firebase.firestore().collection("rooms").doc(roomId);
   await roomRef.set({
     userNames: { [myUid]: myName }
