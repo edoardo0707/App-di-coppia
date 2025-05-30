@@ -10,6 +10,8 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+
+
 document.getElementById("send-button").addEventListener("mouseup", function() {
       this.blur();
     });
