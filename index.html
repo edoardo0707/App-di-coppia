@@ -25,7 +25,7 @@
       </div>
       <h2>Benvenuto in Sex List!</h2>
       <p>Inserisci il codice stanza del partner<br>oppure lascia vuoto per crearne uno nuovo.</p>
-      <input type="text" id="partnerCode" placeholder="Codice coppia..." style="color: black;" autocomplete="off" />
+      <input type="text" id="partnerCode" placeholder="Codice coppia..." style="color: rgb(255, 255, 255);" autocomplete="off" />
       <button onclick="initRoom()">Inizia o Accedi</button>
       <div id="recentRoomsContainer">
         <div class="recent-rooms-title">Stanze usate di recente:</div>
@@ -84,9 +84,11 @@
   </div>
 
   <div class="slide-menu" id="slideMenu">
-    <div class="menu-item" onclick="toggleContainer('posti')">Posti</div>
-    <div class="menu-item" onclick="toggleContainer('localita')">Località</div>
-    <div class="menu-item" onclick="toggleContainer('calendar')">Calendario</div>
+    <div class="menu-item" onclick="toggleContainer('posti')">Posti📍</div>
+    <div class="menu-item" onclick="toggleContainer('localita')">Località🌍</div>
+    <div class="menu-item" onclick="toggleContainer('calendar')">Calendario📅</div>
+    <div class="menu-item" onclick="toggleContainer('chat')">Chat💬</div>
+    <div class="menu-item" onclick="toggleContainer('profilo')">Profilo👤</div>
   </div>
 
   <div id="posti" class="section hidden">
@@ -110,17 +112,27 @@
     </div>
     <div class="days" id="days"></div>
 
-    <div id="dayDetail" class="day-detail hidden">
-
+    <div id="dayDetail" class="day-detail hidden"></div>
     </div>
 
+  <div id="chat" class="section hidden">
+    <div id="chat-container"></div>
+    <div id="input-container">
+      <input id="message-input" type="text" placeholder="Scrivi un messaggio...">
+      <button id="send-button">Invia</button>
     </div>
   </div>
-</div>
 
-
+  <div id="profilo" class="section hidden">
+    <div class="profile-image-upload">
+      <div class="profile-image-circle" id="profileImageCircle"></div>
+      <input type="file" id="profileImageInput" accept="image/*" style="display:none"/>
+    </div>
+    <input id="username-input" type="text" placeholder="Il tuo nome..." autocomplete="off" />
+    <div id="username-error" style="color:#e63946; font-weight:bold; margin-top:6px; display:none;"></div>
   </div>
 
+  </div>
   <!-- Firebase App (compat) -->
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
   <!-- Firebase Firestore (compat) -->
@@ -191,6 +203,7 @@
     loadCalendar();
     loadDailyIdea();
     renderHorizontalTaskCards();
+    initChat();
   }
 
   function initRoom() {
