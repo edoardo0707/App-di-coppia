@@ -711,3 +711,5 @@ window.toggleContainer = toggleContainer;
 window.loadCities = loadCities;
 window.loadCalendar = () => renderMonthWithData(currentDate);
 window.loadDailyIdea = loadDailyIdea;
+window.initChat = initChat;
+window.renderHorizontalTaskCards = renderHorizontalTaskCards;
