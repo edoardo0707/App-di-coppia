@@ -16,7 +16,7 @@
   <meta name="apple-mobile-web-app-title" content="Sex List">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
 
-  <link rel="stylesheet" href="./sexList.css" >
+  <link rel="stylesheet" href="sexList.css" >
 </head>
 <body>
     <div id="roomInit" class="room-init-box">
@@ -25,7 +25,7 @@
       </div>
       <h2>Benvenuto in Sex List!</h2>
       <p>Inserisci il codice stanza del partner<br>oppure lascia vuoto per crearne uno nuovo.</p>
-      <input type="text" id="partnerCode" placeholder="Codice coppia..." style="color: rgb(255, 255, 255);" autocomplete="off" />
+      <input type="text" id="partnerCode" placeholder="Codice coppia..." style="color: black;" autocomplete="off" />
       <button onclick="initRoom()">Inizia o Accedi</button>
       <div id="recentRoomsContainer">
         <div class="recent-rooms-title">Stanze usate di recente:</div>
@@ -84,11 +84,9 @@
   </div>
 
   <div class="slide-menu" id="slideMenu">
-    <div class="menu-item" onclick="toggleContainer('posti')">Posti📍</div>
-    <div class="menu-item" onclick="toggleContainer('localita')">Località🌍</div>
-    <div class="menu-item" onclick="toggleContainer('calendar')">Calendario📅</div>
-    <div class="menu-item" onclick="toggleContainer('chat')">Chat💬</div>
-    <div class="menu-item" onclick="toggleContainer('profilo')">Profilo👤</div>
+    <div class="menu-item" onclick="toggleContainer('posti')">Posti</div>
+    <div class="menu-item" onclick="toggleContainer('localita')">Località</div>
+    <div class="menu-item" onclick="toggleContainer('calendar')">Calendario</div>
   </div>
 
   <div id="posti" class="section hidden">
@@ -112,33 +110,110 @@
     </div>
     <div class="days" id="days"></div>
 
-    <div id="dayDetail" class="day-detail hidden"></div>
+    <div id="dayDetail" class="day-detail hidden">
+
     </div>
 
-  <div id="chat" class="section hidden">
-    <div id="chat-container"></div>
-    <div id="input-container">
-      <input id="message-input" type="text" placeholder="Scrivi un messaggio...">
-      <button id="send-button">Invia</button>
     </div>
   </div>
+</div>
 
-  <div id="profilo" class="section hidden">
-    <div class="profile-image-upload">
-      <div class="profile-image-circle" id="profileImageCircle"></div>
-      <input type="file" id="profileImageInput" accept="image/*" style="display:none"/>
-    </div>
-    <input id="username-input" type="text" placeholder="Il tuo nome..." autocomplete="off" />
-    <div id="username-error" style="color:#e63946; font-weight:bold; margin-top:6px; display:none;"></div>
-  </div>
 
   </div>
+
   <!-- Firebase App (compat) -->
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
   <!-- Firebase Firestore (compat) -->
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+<script>
+  // Config Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyDY0aeJQiMUrJ3h_gdtvCCypQVd_PIn650",
+    authDomain: "lista-di-coppia.firebaseapp.com",
+    projectId: "lista-di-coppia",
+    storageBucket: "lista-di-coppia.firebasestorage.app",
+    messagingSenderId: "588955586283",
+    appId: "1:588955586283:web:d40e9adc9845ff2f0338ae",
+    measurementId: "G-KS8SM2Q0E9"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  let roomId;
 
+  document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("newTask").disabled = true;
+    document.querySelector("#posti button").disabled = true;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const existingRoomId = urlParams.get("room");
+    if (existingRoomId) {
+      roomId = existingRoomId;
+      window.roomDataRef = firebase.firestore().collection("rooms").doc(roomId);
+      startApp();
+    } else {
+      document.getElementById("roomInit").style.display = "block";
+      document.querySelector(".container").style.display = "none";
+    }
+      renderRecentRooms();
+  });
+
+    function saveRoomToHistory(roomCode) {
+      let codes = JSON.parse(localStorage.getItem('recentRooms') || '[]');
+      codes = codes.filter(c => c !== roomCode); // Remove duplicates
+      codes.unshift(roomCode); // Add to start
+      if (codes.length > 10) codes = codes.slice(0, 10); // Max 10 codes
+      localStorage.setItem('recentRooms', JSON.stringify(codes));
+    }
+
+    function renderRecentRooms() {
+      const codes = JSON.parse(localStorage.getItem('recentRooms') || '[]');
+      const container = document.getElementById('recentRooms');
+      if (!container) return;
+      container.innerHTML = '';
+      codes.forEach(code => {
+        const btn = document.createElement('button');
+        btn.className = 'recent-room-code';
+        btn.textContent = code;
+        btn.onclick = () => {
+          document.getElementById('partnerCode').value = code;
+        };
+        container.appendChild(btn);
+      });
+    }
+
+  function startApp() {
+    document.getElementById("roomInit").style.display = "none";
+    document.querySelector(".container").style.display = "block";
+    document.getElementById("newTask").disabled = false;
+    document.querySelector("#posti button").disabled = false;
+    loadTasks();
+    loadCities();
+    loadCalendar();
+    loadDailyIdea();
+    renderHorizontalTaskCards();
+  }
+
+  function initRoom() {
+    const codeInput = document.getElementById('partnerCode').value.trim();
+    let codeToUse;
+    if (codeInput) {
+      codeToUse = codeInput;
+      roomId = codeInput;
+      window.history.replaceState(null, "", `?room=${roomId}`);
+    } else {
+      codeToUse = Math.random().toString(36).substring(2, 10);
+      roomId = codeToUse;
+      alert("Codice stanza generato: " + roomId);
+      window.history.replaceState(null, "", `?room=${roomId}`);
+    }
+    window.roomDataRef = firebase.firestore().collection("rooms").doc(roomId);
+    saveRoomToHistory(codeToUse);
+    renderRecentRooms();
+    startApp();
+  }
+</script>
+
+  <!-- Il tuo JS con la logica della app -->
   <script src="sexList.js"></script>
-  
 </body>
 </html>
