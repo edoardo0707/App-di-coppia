@@ -10,7 +10,92 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+  const firebaseConfig = {
+    apiKey: "AIzaSyDY0aeJQiMUrJ3h_gdtvCCypQVd_PIn650",
+    authDomain: "lista-di-coppia.firebaseapp.com",
+    projectId: "lista-di-coppia",
+    storageBucket: "lista-di-coppia.firebasestorage.app",
+    messagingSenderId: "588955586283",
+    appId: "1:588955586283:web:d40e9adc9845ff2f0338ae",
+    measurementId: "G-KS8SM2Q0E9"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  let roomId;
 
+  document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("newTask").disabled = true;
+    document.querySelector("#posti button").disabled = true;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const existingRoomId = urlParams.get("room");
+    if (existingRoomId) {
+      roomId = existingRoomId;
+      window.roomDataRef = firebase.firestore().collection("rooms").doc(roomId);
+      startApp();
+    } else {
+      document.getElementById("roomInit").style.display = "block";
+      document.querySelector(".container").style.display = "none";
+    }
+      renderRecentRooms();
+  });
+
+    function saveRoomToHistory(roomCode) {
+      let codes = JSON.parse(localStorage.getItem('recentRooms') || '[]');
+      codes = codes.filter(c => c !== roomCode); // Remove duplicates
+      codes.unshift(roomCode); // Add to start
+      if (codes.length > 10) codes = codes.slice(0, 10); // Max 10 codes
+      localStorage.setItem('recentRooms', JSON.stringify(codes));
+    }
+
+    function renderRecentRooms() {
+      const codes = JSON.parse(localStorage.getItem('recentRooms') || '[]');
+      const container = document.getElementById('recentRooms');
+      if (!container) return;
+      container.innerHTML = '';
+      codes.forEach(code => {
+        const btn = document.createElement('button');
+        btn.className = 'recent-room-code';
+        btn.textContent = code;
+        btn.onclick = () => {
+          document.getElementById('partnerCode').value = code;
+        };
+        container.appendChild(btn);
+      });
+    }
+
+  function startApp() {
+    document.getElementById("roomInit").style.display = "none";
+    document.querySelector(".container").style.display = "block";
+    document.getElementById("newTask").disabled = false;
+    document.querySelector("#posti button").disabled = false;
+    loadTasks();
+    loadCities();
+    loadCalendar();
+    loadDailyIdea();
+    renderHorizontalTaskCards();
+    initChat();
+    initProfile();
+  }
+
+  function initRoom() {
+    const codeInput = document.getElementById('partnerCode').value.trim();
+    let codeToUse;
+    if (codeInput) {
+      codeToUse = codeInput;
+      roomId = codeInput;
+      window.history.replaceState(null, "", `?room=${roomId}`);
+    } else {
+      codeToUse = Math.random().toString(36).substring(2, 10);
+      roomId = codeToUse;
+      alert("Codice stanza generato: " + roomId);
+      window.history.replaceState(null, "", `?room=${roomId}`);
+    }
+    window.roomDataRef = firebase.firestore().collection("rooms").doc(roomId);
+    saveRoomToHistory(codeToUse);
+    renderRecentRooms();
+    startApp();
+  }
 
 document.getElementById("send-button").addEventListener("mouseup", function() {
       this.blur();
@@ -94,13 +179,6 @@ function aggiornaIdeaDelGiorno() {
     localStorage.setItem("chatName", myName);
   });
 
-  // Ascolta il nome del partner
-  listenToPartnerName(roomId, myUid, function(newPartnerName) {
-    partnerName = newPartnerName;
-    // Forza il controllo errore
-    usernameInput.dispatchEvent(new Event('input'));
-  });
-
   // All'avvio, se c'è già un nome salvato, lo mostra
   let myName = localStorage.getItem("chatName") || "";
   if (usernameInput) usernameInput.value = myName;
@@ -128,10 +206,91 @@ function listenToPartnerName(roomId, myUid, onPartnerName) {
     }
   });
 }
+
+function initProfile() {
+  const profileImageCircle = document.getElementById("profileImageCircle");
+  const profileImageInput = document.getElementById("profileImageInput");
+  const usernameInput = document.getElementById("username-input");
+  const usernameError = document.getElementById("username-error");
+  let partnerName = "";
+
+  // Carica immagine da localStorage se presente
+  const savedImg = localStorage.getItem("profileImage");
+  if (savedImg && profileImageCircle) {
+    profileImageCircle.style.backgroundImage = `url(${savedImg})`;
+  }
+
+  if (profileImageCircle && profileImageInput) {
+    profileImageCircle.onclick = () => profileImageInput.click();
+    profileImageInput.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const imgSrc = ev.target.result;
+        profileImageCircle.style.backgroundImage = `url(${imgSrc})`;
+        localStorage.setItem("profileImage", imgSrc);
+      };
+      reader.readAsDataURL(file);
+    };
+  }
+
+  let myUid = localStorage.getItem("myUid");
+  if (!myUid) {
+    myUid = Math.random().toString(36).substring(2, 12);
+    localStorage.setItem("myUid", myUid);
+  }
+  let roomId = window.roomId || (new URLSearchParams(window.location.search)).get("room");
+
+  // Aggiorna nome su Firestore quando cambia
+  usernameInput.addEventListener("input", function() {
+    const myName = this.value.trim();
+    saveMyNameToFirestore(roomId, myUid, myName);
+    if (partnerName && myName.toLowerCase() === partnerName.toLowerCase()) {
+      usernameError.textContent = "Il nome non può essere uguale a quello del partner!";
+      usernameError.style.display = "block";
+    } else {
+      usernameError.textContent = "";
+      usernameError.style.display = "none";
+    }
+    localStorage.setItem("chatName", myName);
+  });
+
+  // Ascolta il nome del partner
+  if (roomId) {
+    listenToPartnerName(roomId, myUid, function(newPartnerName) {
+      partnerName = newPartnerName;
+      usernameInput.dispatchEvent(new Event('input'));
+    });
+  }
+
+  // All'avvio, se c'è già un nome salvato, lo mostra
+  let myName = localStorage.getItem("chatName") || "";
+  if (usernameInput) usernameInput.value = myName;
+}
+
+// Poi in index.html, dentro startApp():
+function startApp() {
+  document.getElementById("roomInit").style.display = "none";
+  document.querySelector(".container").style.display = "block";
+  document.getElementById("newTask").disabled = false;
+  document.querySelector("#posti button").disabled = false;
+  loadTasks();
+  loadCities();
+  loadCalendar();
+  loadDailyIdea();
+  renderHorizontalTaskCards();
+  initChat();
+  initProfile(); // <--- aggiungi questa riga
+}
   
   
 
 function initChat() {
+  if (!window.roomDataRef) {
+    console.error("roomDataRef non inizializzato!");
+    return;
+  }
   const messagesRef = window.roomDataRef.collection("messages");
   let myName = localStorage.getItem("chatName") || "";
   const usernameInput = document.getElementById("username-input");
@@ -185,6 +344,27 @@ function initChat() {
   });
 }
 window.initChat = initChat;
+async function saveMyNameToFirestore(roomId, myUid, myName) {
+  if (!roomId) {
+    console.error("saveMyNameToFirestore: roomId mancante!");
+    return;
+  }
+  const roomRef = firebase.firestore().collection("rooms").doc(roomId);
+  await roomRef.set({
+    userNames: { [myUid]: myName }
+  }, { merge: true });
+}
+
+function listenToPartnerName(roomId, myUid, onPartnerName) {
+  if (!roomId) {
+    console.error("listenToPartnerName: roomId mancante!");
+    return;
+  }
+  const roomRef = firebase.firestore().collection("rooms").doc(roomId);
+  return roomRef.onSnapshot(doc => {
+    // ...resto della funzione...
+  });
+}
 
 const taskListDiv = document.getElementById('taskList');
 const input = document.getElementById('newTask');
@@ -195,7 +375,10 @@ let dailyIdeasRef;
 
 // Queste referenze vengono aggiornate quando roomDataRef è pronto
 function updateRefs() {
-  if (!window.roomDataRef) return;
+  if (!window.roomDataRef) {
+    console.error("updateRefs: roomDataRef non inizializzato!");
+    return;
+  }
   tasksRef = roomDataRef.collection("tasks");
   citiesRef = roomDataRef.collection("cities");
   calendarRef = roomDataRef.collection("calendarDays");
