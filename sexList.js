@@ -270,19 +270,6 @@ function initProfile() {
 }
 
 // Poi in index.html, dentro startApp():
-function startApp() {
-  document.getElementById("roomInit").style.display = "none";
-  document.querySelector(".container").style.display = "block";
-  document.getElementById("newTask").disabled = false;
-  document.querySelector("#posti button").disabled = false;
-  loadTasks();
-  loadCities();
-  loadCalendar();
-  loadDailyIdea();
-  renderHorizontalTaskCards();
-  initChat();
-  initProfile(); // <--- aggiungi questa riga
-}
   
   
 
@@ -344,6 +331,21 @@ function initChat() {
   });
 }
 window.initChat = initChat;
+
+function startApp() {
+  document.getElementById("roomInit").style.display = "none";
+  document.querySelector(".container").style.display = "block";
+  document.getElementById("newTask").disabled = false;
+  document.querySelector("#posti button").disabled = false;
+  loadTasks();
+  loadCities();
+  loadCalendar();
+  loadDailyIdea();
+  renderHorizontalTaskCards();
+  initChat();
+  initProfile(); // <--- aggiungi questa riga
+}
+
 async function saveMyNameToFirestore(roomId, myUid, myName) {
   if (!roomId) {
     console.error("saveMyNameToFirestore: roomId mancante!");
@@ -896,5 +898,5 @@ window.toggleContainer = toggleContainer;
 window.loadCities = loadCities;
 window.loadCalendar = () => renderMonthWithData(currentDate);
 window.loadDailyIdea = loadDailyIdea;
-window.initChat = initChat;
+
 window.renderHorizontalTaskCards = renderHorizontalTaskCards;
