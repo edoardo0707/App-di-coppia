@@ -64,19 +64,6 @@ if ('serviceWorker' in navigator) {
       });
     }
 
-  function startApp() {
-    document.getElementById("roomInit").style.display = "none";
-    document.querySelector(".container").style.display = "block";
-    document.getElementById("newTask").disabled = false;
-    document.querySelector("#posti button").disabled = false;
-    loadTasks();
-    loadCities();
-    loadCalendar();
-    loadDailyIdea();
-    renderHorizontalTaskCards();
-    initChat();
-    initProfile();
-  }
 
   function initRoom() {
     const codeInput = document.getElementById('partnerCode').value.trim();
@@ -888,6 +875,20 @@ nextBtn.onclick = () => {
 function loadDailyIdea() {
   // Qui puoi aggiungere la logica per dailyIdeasRef
 }
+
+  function startApp() {
+    document.getElementById("roomInit").style.display = "none";
+    document.querySelector(".container").style.display = "block";
+    document.getElementById("newTask").disabled = false;
+    document.querySelector("#posti button").disabled = false;
+    loadTasks();
+    loadCities();
+    loadCalendar();
+    loadDailyIdea();
+    renderHorizontalTaskCards();
+    initChat();
+    initProfile();
+  }
 
 // --- INIZIALIZZAZIONE ---
 window.loadTasks = loadTasks;
