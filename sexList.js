@@ -133,43 +133,46 @@ function initChat() {
     myName = "Anonimo";
   }
 
-  document.getElementById("send-button").addEventListener("click", async () => {
-    const input = document.getElementById("message-input");
-    const text = input.value.trim();
-    if (!text) return;
-    await messagesRef.add({
-      name: myName,
-      text: text,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    input.value = "";
+document.getElementById("send-button").addEventListener("click", async () => {
+  const input = document.getElementById("message-input");
+  const text = input.value.trim();
+  if (!text) return;
+  const myUid = localStorage.getItem("myUid"); // aggiungi questa riga
+  await messagesRef.add({
+    name: myName,
+    uid: myUid, // salva anche l'uid
+    text: text,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
   });
+  input.value = "";
+});
 
   messagesRef.orderBy("timestamp").onSnapshot(snapshot => {
-    const container = document.getElementById("chat-container");
-    container.innerHTML = "";
-    snapshot.forEach(doc => {
-      const msg = doc.data();
-      const messageWrapper = document.createElement("div");
-      messageWrapper.classList.add("message");
-      messageWrapper.classList.add(msg.name === myName ? "me" : "other");
-      const textDiv = document.createElement("div");
-      textDiv.classList.add("text");
-      textDiv.textContent = msg.text;
-      const timeDiv = document.createElement("div");
-      timeDiv.classList.add("timestamp");
-      if (msg.timestamp?.toDate) {
-        const date = msg.timestamp.toDate();
-        const hours = date.getHours().toString().padStart(2, "0");
-        const minutes = date.getMinutes().toString().padStart(2, "0");
-        timeDiv.textContent = `${hours}:${minutes}`;
-      }
-      messageWrapper.appendChild(textDiv);
-      messageWrapper.appendChild(timeDiv);
-      container.appendChild(messageWrapper);
-    });
-    container.scrollTop = container.scrollHeight;
+  const container = document.getElementById("chat-container");
+  container.innerHTML = "";
+  const myUid = localStorage.getItem("myUid");
+  snapshot.forEach(doc => {
+    const msg = doc.data();
+    const messageWrapper = document.createElement("div");
+    messageWrapper.classList.add(msg.uid === myUid ? "me" : "other");
+    messageWrapper.classList.add("message");
+    const textDiv = document.createElement("div");
+    textDiv.classList.add("text");
+    textDiv.textContent = msg.text;
+    const timeDiv = document.createElement("div");
+    timeDiv.classList.add("timestamp");
+    if (msg.timestamp?.toDate) {
+      const date = msg.timestamp.toDate();
+      const hours = date.getHours().toString().padStart(2, "0");
+      const minutes = date.getMinutes().toString().padStart(2, "0");
+      timeDiv.textContent = `${hours}:${minutes}`;
+    }
+    messageWrapper.appendChild(textDiv);
+    messageWrapper.appendChild(timeDiv);
+    container.appendChild(messageWrapper);
   });
+  container.scrollTop = container.scrollHeight;
+});
 }
 window.initChat = initChat;
 
@@ -686,10 +689,7 @@ nextBtn.onclick = () => {
   renderMonthWithData(currentDate);
 };
 
-// --- DAILY IDEA (stub, puoi personalizzare) ---
-function loadDailyIdea() {
-  // Qui puoi aggiungere la logica per dailyIdeasRef
-}
+
 
 // --- INIZIALIZZAZIONE ---
 window.loadTasks = loadTasks;
@@ -699,6 +699,6 @@ window.toggleMenu = toggleMenu;
 window.toggleContainer = toggleContainer;
 window.loadCities = loadCities;
 window.loadCalendar = () => renderMonthWithData(currentDate);
-window.loadDailyIdea = loadDailyIdea;
+window.loadDailyIdea = aggiornaIdeaDelGiorno;
 window.initChat = initChat;
 window.renderHorizontalTaskCards = renderHorizontalTaskCards;
