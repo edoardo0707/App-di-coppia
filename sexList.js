@@ -8,6 +8,9 @@ const firebaseConfig = {
     measurementId: "G-KS8SM2Q0E9"
   };
   firebase.initializeApp(firebaseConfig);
+  firebase.auth().signInAnonymously().catch(function(error) {
+    console.error("Errore autenticazione anonima:", error);
+});
   const db = firebase.firestore();
   let roomId;
 
@@ -61,11 +64,10 @@ const firebaseConfig = {
     loadCities();
     loadCalendar();
     loadDailyIdea();
-    renderHorizontalTaskCards();
     initChat();
   }
 
-  function initRoom() {
+  async function initRoom() {
     const codeInput = document.getElementById('partnerCode').value.trim();
     let codeToUse;
     if (codeInput) {
@@ -78,12 +80,28 @@ const firebaseConfig = {
       alert("Codice stanza generato: " + roomId);
       window.history.replaceState(null, "", `?room=${roomId}`);
     }
+    if (!roomId) {
+      alert("roomId mancante!");
+      return;
+    }
     window.roomDataRef = firebase.firestore().collection("rooms").doc(roomId);
+
+    // Aspetta che l'utente sia autenticato e aggiungi il suo UID a userNames
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        const uid = user.uid;
+        const roomRef = firebase.firestore().collection("rooms").doc(roomId);
+        roomRef.set({
+          userNames: { [uid]: true }
+        }, { merge: true });
+      }
+    });
+
     saveRoomToHistory(codeToUse);
     renderRecentRooms();
     startApp();
   }
-document.getElementById("send-button").addEventListener("mouseup", function() {
+    document.getElementById("send-button").addEventListener("mouseup", function() {
       this.blur();
     });
     document.getElementById("send-button").addEventListener("mousedown", function() {
@@ -91,26 +109,52 @@ document.getElementById("send-button").addEventListener("mouseup", function() {
     });
 
 function aggiornaIdeaDelGiorno() {
-    const idee = [
-      "💡 Provate la doccia insieme domani mattina 🌧️💋",
-      "💡 Scrivetevi una lettera d'amore ✉️❤️",
-      "💡 Cucinate qualcosa di nuovo insieme 🍝👩‍🍳",
-      "💡 Guardate il tramonto mano nella mano 🌅🤝",
-      "💡 Spegnete i telefoni per un'ora solo per voi 📵💑",
-      "💡 Fate una passeggiata senza meta 🚶‍♂️🚶‍♀️",
-      "💡 Raccontatevi un segreto mai detto 🤫💞"
-    ];
+const idee = [
+  "💡 Provate la doccia insieme domani mattina 🌧️💋",
+  "💡 Scrivetevi una lettera d'amore ✉️❤️",
+  "💡 Cucinate qualcosa di nuovo insieme 🍝👩‍🍳",
+  "💡 Guardate il tramonto mano nella mano 🌅🤝",
+  "💡 Spegnete i telefoni per un'ora solo per voi 📵💑",
+  "💡 Fate una passeggiata senza meta 🚶‍♂️🚶‍♀️",
+  "💡 Raccontatevi un segreto mai detto 🤫💞",
+  "💡 Massaggiatevi a vicenda... lentamente 👐💖",
+  "💡 Provate a spogliarvi con gli occhi bendati 😍🕶️",
+  "💡 Guardate un film hot insieme sotto le coperte 🎬🔥",
+  "💡 Scrivetevi un messaggio provocante... e leggetelo ad alta voce 📝👄",
+  "💡 Fate un gioco di ruoli per la sera 🕵️‍♀️👨‍⚕️",
+  "💡 Provate a baciarvi per 60 secondi senza parlare 😚⏱️",
+  "💡 Mandatevi un vocale sexy da ascoltare domani 😈🎧",
+  "💡 Ballate lentamente al buio, anche senza musica 💃🕺🌙",
+  "💡 Scegliete un oggetto a caso e rendetelo parte del gioco 😏🔧",
+  "💡 Giocate al 'vietato toccare'... o quasi 😇💥",
+  "💡 Provate un bacio in ogni stanza della casa 💋🏠",
+  "💡 Preparate un letto con petali, luci e sorprese ✨🌹",
+  "💡 Parlate delle vostre fantasie più nascoste 🤐🔥",
+  "💡 Mettetevi una canzone sensuale e fate uno spogliarello 🧯🎶",
+  "💡 Toccatevi solo con il respiro, niente mani... all'inizio 😮‍💨💞",
+  "💡 Scrivete sul corpo dell’altro con le dita ✍️👅",
+  "💡 Provate a non baciarvi per un’ora… e poi recuperate ⏳💥",
+  "💡 Fate una lista dei 5 posti più hot dove vorreste farlo 🗺️🔥",
+  "💡 Fate un bagno con candele e bollicine 🛁🕯️",
+  "💡 Leggete un racconto erotico insieme 📖💘",
+  "💡 Scegliete un capo da togliere ogni 10 minuti di film 🩵📺",
+  "💡 Inventate un linguaggio segreto per i vostri piaceri 🗣️💓",
+  "💡 Dedicate una serata solo ai baci, senza andare oltre 😽💞",
+  "💡 Mettete una benda e lasciatevi guidare solo dal tatto 😵‍💫✋"
+];
 
-    // Usa il giorno corrente per selezionare un'idea
-    const oggi = new Date();
-    const indice = oggi.getDate() % idee.length;
 
-    // Aggiorna il contenuto della div
-    const dailyTip = document.querySelector('.daily-tip');
-    if (dailyTip) {
-      dailyTip.textContent = idee[indice];
-    }
+  // Usa il giorno corrente per selezionare un'idea
+  const oggi = new Date();
+  const indice = oggi.getDate() % idee.length;
+
+  // Aggiorna il contenuto del paragrafo dentro #daily-tip
+  const dailyTip = document.querySelector('#daily-tip p');
+  if (dailyTip) {
+    dailyTip.textContent = idee[indice];
   }
+}
+document.addEventListener('DOMContentLoaded', aggiornaIdeaDelGiorno);
   document.addEventListener('DOMContentLoaded', aggiornaIdeaDelGiorno);
 
   document.addEventListener("DOMContentLoaded", function() {
@@ -155,7 +199,7 @@ function aggiornaIdeaDelGiorno() {
     const myName = this.value.trim();
     saveMyNameToFirestore(roomId, myUid, myName);
     // Mostra errore se uguale al partner
-    if (partnerName && myName.toLowerCase() === partnerName.toLowerCase()) {
+    if (partnerName && typeof partnerName === "string" && myName.toLowerCase() === partnerName.toLowerCase()) {
       usernameError.textContent = "Il nome non può essere uguale a quello del partner!";
       usernameError.style.display = "block";
     } else {
@@ -163,7 +207,7 @@ function aggiornaIdeaDelGiorno() {
       usernameError.style.display = "none";
     }
     localStorage.setItem("chatName", myName);
-  });
+});
 
   // Ascolta il nome del partner
   listenToPartnerName(roomId, myUid, function(newPartnerName) {
@@ -532,25 +576,7 @@ input2.addEventListener('keydown', async e => {
 });
 
 // --- TASK CARDS ORIZZONTALI ---
-function renderHorizontalTaskCards() {
-  updateRefs();
-  if (!tasksRef) return;
-  const container = document.getElementById("taskCardContainer");
-  if (!container) return;
-  tasksRef.where("done", "==", false).orderBy("text").onSnapshot(snapshot => {
-    container.innerHTML = '';
-    snapshot.forEach(doc => {
-      const task = doc.data();
-      const card = document.createElement("div");
-      card.className = "card";
-      const title = document.createElement("div");
-      title.className = "card-title";
-      title.textContent = task.text;
-      card.appendChild(title);
-      container.appendChild(card);
-    });
-  });
-}
+
 
 // --- CALENDARIO ---
 const daysContainer = document.getElementById('days');
@@ -794,4 +820,3 @@ window.loadCities = loadCities;
 window.loadCalendar = () => renderMonthWithData(currentDate);
 window.loadDailyIdea = aggiornaIdeaDelGiorno;
 window.initChat = initChat;
-window.renderHorizontalTaskCards = renderHorizontalTaskCards;
