@@ -966,7 +966,16 @@ input, button {
   margin-top: 4px;
   text-align: right;
 }
-
+@media (max-width: 400px) {
+  #send-button {
+    margin-right: 0;
+    margin-left: -5%;
+    padding-right: 0; /* Nessun padding a destra */
+  }
+  #input-container {
+    gap: 0rem;
+  }
+}
 /* Responsive: Smartphone in verticale */
 @media (max-width: 600px) {
   #chat {
