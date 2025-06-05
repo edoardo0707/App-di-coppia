@@ -1,4 +1,88 @@
+const firebaseConfig = {
+    apiKey: "AIzaSyDY0aeJQiMUrJ3h_gdtvCCypQVd_PIn650",
+    authDomain: "lista-di-coppia.firebaseapp.com",
+    projectId: "lista-di-coppia",
+    storageBucket: "lista-di-coppia.firebasestorage.app",
+    messagingSenderId: "588955586283",
+    appId: "1:588955586283:web:d40e9adc9845ff2f0338ae",
+    measurementId: "G-KS8SM2Q0E9"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  let roomId;
 
+  document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("newTask").disabled = true;
+    document.querySelector("#posti button").disabled = true;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const existingRoomId = urlParams.get("room");
+    if (existingRoomId) {
+      roomId = existingRoomId;
+      window.roomDataRef = firebase.firestore().collection("rooms").doc(roomId);
+      startApp();
+    } else {
+      document.getElementById("roomInit").style.display = "block";
+      document.querySelector(".container").style.display = "none";
+    }
+      renderRecentRooms();
+  });
+
+    function saveRoomToHistory(roomCode) {
+      let codes = JSON.parse(localStorage.getItem('recentRooms') || '[]');
+      codes = codes.filter(c => c !== roomCode); // Remove duplicates
+      codes.unshift(roomCode); // Add to start
+      if (codes.length > 10) codes = codes.slice(0, 10); // Max 10 codes
+      localStorage.setItem('recentRooms', JSON.stringify(codes));
+    }
+
+    function renderRecentRooms() {
+      const codes = JSON.parse(localStorage.getItem('recentRooms') || '[]');
+      const container = document.getElementById('recentRooms');
+      if (!container) return;
+      container.innerHTML = '';
+      codes.forEach(code => {
+        const btn = document.createElement('button');
+        btn.className = 'recent-room-code';
+        btn.textContent = code;
+        btn.onclick = () => {
+          document.getElementById('partnerCode').value = code;
+        };
+        container.appendChild(btn);
+      });
+    }
+
+  function startApp() {
+    document.getElementById("roomInit").style.display = "none";
+    document.querySelector(".container").style.display = "block";
+    document.getElementById("newTask").disabled = false;
+    document.querySelector("#posti button").disabled = false;
+    loadTasks();
+    loadCities();
+    loadCalendar();
+    loadDailyIdea();
+    renderHorizontalTaskCards();
+    initChat();
+  }
+
+  function initRoom() {
+    const codeInput = document.getElementById('partnerCode').value.trim();
+    let codeToUse;
+    if (codeInput) {
+      codeToUse = codeInput;
+      roomId = codeInput;
+      window.history.replaceState(null, "", `?room=${roomId}`);
+    } else {
+      codeToUse = Math.random().toString(36).substring(2, 10);
+      roomId = codeToUse;
+      alert("Codice stanza generato: " + roomId);
+      window.history.replaceState(null, "", `?room=${roomId}`);
+    }
+    window.roomDataRef = firebase.firestore().collection("rooms").doc(roomId);
+    saveRoomToHistory(codeToUse);
+    renderRecentRooms();
+    startApp();
+  }
 document.getElementById("send-button").addEventListener("mouseup", function() {
       this.blur();
     });
@@ -563,7 +647,6 @@ function renderCalendar(date) {
     daysContainer.appendChild(dayDiv);
   }
 }
-
 async function openDayDetail(year, month, day) {
   const key = formatDateKey(new Date(year, month, day));
   const contentObj = await loadDayContent(key);
@@ -621,9 +704,19 @@ async function openDayDetail(year, month, day) {
     iconCheckboxes[i] = detailBox.querySelector(`#icon${i}`);
     iconCheckboxes[i].addEventListener('change', saveInputs);
   }
-  descInput.addEventListener('input', saveInputs);
-  reminderInput.addEventListener('input', saveInputs);
+
+  // --- AUTOSAVE LOGIC ---
+  let autosaveTimeout;
+  function scheduleAutosave() {
+    if (autosaveTimeout) clearTimeout(autosaveTimeout);
+    autosaveTimeout = setTimeout(saveInputs, 5000);
+  }
+
+  descInput.addEventListener('input', scheduleAutosave);
+  reminderInput.addEventListener('input', scheduleAutosave);
+
   function saveInputs() {
+    if (autosaveTimeout) clearTimeout(autosaveTimeout);
     const newContent = {
       description: descInput.value,
       reminder: reminderInput.value,
