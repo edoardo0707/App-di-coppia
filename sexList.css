@@ -403,74 +403,6 @@ input, button {
 .hidden {
   display: none !important;
 }
-
-.container3 {
-  position: relative;
-  width: 96%;
-  max-width: 1000px;
-  margin: 0 auto;
-  min-height: 80%;
-  padding: 2rem;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-  border-radius: 10px;
-  overflow-x: hidden;
-  background-color: rgba(0, 0, 0, 0.2);
-  flex-direction: column;
-  display: flex;
-  box-sizing: border-box;
-}
-
-#inner-content {
-  margin-top: -15%;
-}
-
-.sezione {
-  margin-bottom: 1rem;
-}
-
-.sezione h2 {
-  color: gold;
-  font-size: 1.4rem;
-  text-align: center;
-  margin-top: 2rem;
-}
-
-.card {
-  background-color: #1a1a1a62;
-  border: 1px solid #333;
-  border-radius: 12px;
-  padding: 4%;
-  margin-bottom: 0.5rem;
-}
-
-.card-title {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #ff0000;
-  margin-bottom: 0.5rem;
-}
-
-.card-meta {
-  font-size: 0.9rem;
-  color: #ccc;
-}
-
-.card-note {
-  font-size: 0.95rem;
-  margin-top: 0.5rem;
-  color: #aaa;
-  font-style: italic;
-}
-
-.daily-tip {
-  background-color: #1a1a1a62;
-  border-left: 40% solid gold;
-  padding: 1rem;
-  border-radius: 10px;
-  color: #f9f9f9;
-  font-size:1rem;
-}
-
     .calendar {
       background: white;
       border-radius: 20px;
@@ -788,38 +720,7 @@ input, button {
     padding: 0px 8px;
   }
 }
-.scroll-container {
-  display: flex;
-  overflow-x: auto;
-  gap: 1rem;
-  padding: 0.5rem 0;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-}
 
-.scroll-container::-webkit-scrollbar {
-  display: none;
-}
-
-.scroll-container .card {
-  flex: 0 0 auto;
-  min-width: 180px;
-  max-width: 250px;
-  width: 90%;
-  background-color: #1a1a1a62;
-  border: 1px solid #333;
-  border-radius: 12px;
-  padding: 1rem;
-  scroll-snap-align: start;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-}
-
-.scroll-container .card-title {
-  font-size: 1.5rem;
-  color: #ff0000;
-  font-weight: bold;
-  
-}
 .room-init-box {
   width: 100%;
   height: 100%;
@@ -1112,11 +1013,11 @@ input, button {
   justify-content: flex-start;
   padding: 36px 18px 24px 18px;
   background: rgba(255,255,255,0.13);
-  border-radius: 24px;
+  backdrop-filter: blur(10px) saturate(130%);
   box-shadow: 0 8px 32px 0 rgba(230, 57, 70, 0.18), 0 1.5px 8px 0 rgba(0,0,0,0.10);
+  border-radius: 24px;
   max-width: 350px;
   margin: 6vh auto 0 auto;
-  backdrop-filter: blur(10px) saturate(130%);
   border: 1.5px solid rgba(230, 57, 70, 0.13);
   animation: fadeIn 0.7s;
 }
@@ -1212,5 +1113,123 @@ input, button {
   #username-input {
     font-size: 1em;
     padding: 8px 8px;
+  }
+}
+  .container3 {
+    position: relative;
+    width: 96%;
+    max-width: 1000px;
+    margin: 0 auto;
+    max-height: 85vh;
+    padding: 1rem 2rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    overflow-x: hidden;
+    background-color: rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+  }
+
+  .container3 header {
+    width: 100%;
+    text-align: center;
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 2rem;
+    text-shadow: 0 0 10px rgba(255, 0, 128, 0.3);
+  }
+
+.card {
+  border-radius: 1.5rem;
+  padding-left: 2%;
+  padding-right: 2%;
+  text-align: center;
+  background: rgba(255,255,255,0.13);
+  backdrop-filter: blur(10px) saturate(130%);
+  box-shadow: 0 8px 32px 0 rgba(230, 57, 70, 0.18), 0 1.5px 8px 0 rgba(0,0,0,0.10);
+  transition: transform 0.2s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  color: rgb(255, 255, 255);
+  width: 100%;
+  box-sizing: border-box;
+  font-weight: bold;
+}
+
+.card h3 {
+  font-size: 2.6vh;
+  margin-bottom: 0;
+  font-weight: bold;
+  color: rgba(0, 0, 0, 0.9);
+  text-shadow: 0 0 8px rgba(255, 105, 180, 0.9); /* rosa neon sexy */
+  line-height: 1.4;
+}
+
+.card p {
+  font-size: 1.8vh;
+  line-height: 1.4;
+  font-weight: bold;
+  color: #ffffffa1;
+  text-shadow: 0 0 6px rgba(255, 182, 193, 0.9); /* rosa chiaro sexy */
+}
+
+/* Responsive per schermi più grandi (tablet o desktop) */
+@media (min-width: 768px) {
+  .container3 {
+    padding: 2rem 3rem;
+  }
+
+  .cards-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  .card {
+    margin-bottom: 0;
+    height: 100%;
+  }
+}
+
+@media (min-width: 1024px) {
+  .cards-wrapper {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-height: 670px) {
+  .container3 header {
+    width: 100%;
+    font-size: 1.2rem;
+  }
+
+  .cards-wrapper {
+    gap: 1.2rem;
+  }
+
+  .card {
+    border-radius: 1.5rem;
+    padding-left: 2%;
+    padding-right: 2%;
+    margin-bottom: 1.2rem;
+  }
+
+  .card h3 {
+    font-size: 1rem;
+    margin-bottom: 0;
+    font-weight: bold;
+    text-shadow: 0 0 6px rgba(255, 105, 180, 0.9);
+  }
+
+  .card p {
+    font-size: 1.9vh;
+    line-height: 1.4;
+    font-weight: bold;
+    text-shadow: 0 0 5px rgba(255, 182, 193, 0.8);
   }
 }
