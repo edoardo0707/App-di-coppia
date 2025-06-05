@@ -8,9 +8,6 @@ const firebaseConfig = {
     measurementId: "G-KS8SM2Q0E9"
   };
   firebase.initializeApp(firebaseConfig);
-  firebase.auth().signInAnonymously().catch(function(error) {
-    console.error("Errore autenticazione anonima:", error);
-});
   const db = firebase.firestore();
   let roomId;
 
@@ -68,7 +65,7 @@ const firebaseConfig = {
     initChat();
   }
 
-  async function initRoom() {
+  function initRoom() {
     const codeInput = document.getElementById('partnerCode').value.trim();
     let codeToUse;
     if (codeInput) {
@@ -81,28 +78,12 @@ const firebaseConfig = {
       alert("Codice stanza generato: " + roomId);
       window.history.replaceState(null, "", `?room=${roomId}`);
     }
-    if (!roomId) {
-      alert("roomId mancante!");
-      return;
-    }
     window.roomDataRef = firebase.firestore().collection("rooms").doc(roomId);
-
-    // Aspetta che l'utente sia autenticato e aggiungi il suo UID a userNames
-    firebase.auth().onAuthStateChanged(function(user) {
-      if (user) {
-        const uid = user.uid;
-        const roomRef = firebase.firestore().collection("rooms").doc(roomId);
-        roomRef.set({
-          userNames: { [uid]: true }
-        }, { merge: true });
-      }
-    });
-
     saveRoomToHistory(codeToUse);
     renderRecentRooms();
     startApp();
   }
-    document.getElementById("send-button").addEventListener("mouseup", function() {
+document.getElementById("send-button").addEventListener("mouseup", function() {
       this.blur();
     });
     document.getElementById("send-button").addEventListener("mousedown", function() {
