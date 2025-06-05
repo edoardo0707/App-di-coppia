@@ -68,40 +68,40 @@ const firebaseConfig = {
     initChat();
   }
 
-async function initRoom() {
-  const codeInput = document.getElementById('partnerCode').value.trim();
-  let codeToUse;
-  if (codeInput) {
-    codeToUse = codeInput;
-    roomId = codeInput;
-    window.history.replaceState(null, "", `?room=${roomId}`);
-  } else {
-    codeToUse = Math.random().toString(36).substring(2, 10);
-    roomId = codeToUse;
-    alert("Codice stanza generato: " + roomId);
-    window.history.replaceState(null, "", `?room=${roomId}`);
-  }
-  if (!roomId) {
-    alert("roomId mancante!");
-    return;
-  }
-  window.roomDataRef = firebase.firestore().collection("rooms").doc(roomId);
-
-  // Aspetta che l'utente sia autenticato e aggiungi il suo UID a userNames
-  firebase.auth().onAuthStateChanged(function(user) {
-    if (user) {
-      const uid = user.uid;
-      const roomRef = firebase.firestore().collection("rooms").doc(roomId);
-      roomRef.set({
-        userNames: { [uid]: true }
-      }, { merge: true });
+  async function initRoom() {
+    const codeInput = document.getElementById('partnerCode').value.trim();
+    let codeToUse;
+    if (codeInput) {
+      codeToUse = codeInput;
+      roomId = codeInput;
+      window.history.replaceState(null, "", `?room=${roomId}`);
+    } else {
+      codeToUse = Math.random().toString(36).substring(2, 10);
+      roomId = codeToUse;
+      alert("Codice stanza generato: " + roomId);
+      window.history.replaceState(null, "", `?room=${roomId}`);
     }
-  });
+    if (!roomId) {
+      alert("roomId mancante!");
+      return;
+    }
+    window.roomDataRef = firebase.firestore().collection("rooms").doc(roomId);
 
-  saveRoomToHistory(codeToUse);
-  renderRecentRooms();
-  startApp();
-}
+    // Aspetta che l'utente sia autenticato e aggiungi il suo UID a userNames
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        const uid = user.uid;
+        const roomRef = firebase.firestore().collection("rooms").doc(roomId);
+        roomRef.set({
+          userNames: { [uid]: true }
+        }, { merge: true });
+      }
+    });
+
+    saveRoomToHistory(codeToUse);
+    renderRecentRooms();
+    startApp();
+  }
     document.getElementById("send-button").addEventListener("mouseup", function() {
       this.blur();
     });
