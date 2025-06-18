@@ -697,6 +697,7 @@ async function openDayDetail(year, month, day) {
       <label><input type="checkbox" id="icon3" ${contentObj.icons?.[3] ? 'checked' : ''}>sega</label>
       <label><input type="checkbox" id="icon4" ${contentObj.icons?.[4] ? 'checked' : ''}>leccata</label>
       <label><input type="checkbox" id="icon5" ${contentObj.icons?.[5] ? 'checked' : ''}>anale</label>
+      <label><input type="checkbox" id="icon5" ${contentObj.icons?.[5] ? 'checked' : ''}>69</label>
     </div>
   `;
   detailBox.classList.remove('hidden');
